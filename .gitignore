@@ -1,0 +1,14 @@
+# Godot 4+ 전용
+.godot/
+
+# 내보내기(빌드) 산출물
+/build/
+*.exe
+*.pck
+*.zip
+
+# macOS
+.DS_Store
+
+# OMC 작업 상태 (로컬 전용)
+.omc/
