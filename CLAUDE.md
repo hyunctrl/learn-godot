@@ -13,7 +13,7 @@ Godot 4로 **2D 횡스크롤 플랫포머**를 만들어 **직접 퍼블리싱**
 
 ## 📍 진행 상황 (현재 위치)
 
-- **Phase 1 진행 중** — 공식 "첫 2D 게임 (Dodge the Creeps)" 시작. 책 없이 공식 문서로, 튜터 풀가이드.
+- **Phase 1 완료 ✅** — Dodge the Creeps 제작(씬·인스턴스·시그널·그룹·타이머·물리·UI). 사운드 생략. 다음: Phase 2(개념 정리) 또는 Phase 3(플랫포머 심화).
 - Phase 0 완료 ✅ (Godot 4.7 설치, 에디터·노드/씬/시그널 개념).
 - 단계별 체크 상태: [docs/roadmap.md](docs/roadmap.md)가 정본. 배운 것은 roadmap.md "배운 것 로그"에 기록.
 - 세션 시작 시: **[docs/tutor-guide.md](docs/tutor-guide.md)의 "현재 위치"와 [docs/roadmap.md](docs/roadmap.md)를 먼저 확인**하고 이어서 안내할 것.

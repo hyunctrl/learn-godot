@@ -47,17 +47,16 @@
 
 > 정본은 [roadmap.md](roadmap.md)의 체크박스와 "배운 것 로그". 이 섹션은 "지금 어디인지"를 빠르게 보기 위한 요약.
 
-**현재 위치: Phase 1 — 첫 2D 게임 (Dodge the Creeps) 시작**
+**현재 위치: Phase 1 완료 ✅ — 다음은 Phase 2(개념 정리) 또는 Phase 3(플랫포머 심화)**
 
 - [x] Phase 0 · 레포 + 로드맵 + 대시보드 세팅
 - [x] Phase 0 · Godot 4.7 설치 + 에디터/개념 적응
-- [ ] **Phase 1 · 공식 Dodge the Creeps  ← 지금 여기**
-- [ ] Phase 2 · 공식 문서 개념 정리
-- [ ] Phase 3 · 플랫포머 심화
+- [x] Phase 1 · 공식 Dodge the Creeps 완성 (사운드 생략)
+- [ ] **Phase 2/3  ← 다음**
 - [ ] Phase 4 · 자작 플랫포머
 - [ ] Phase 5 · 퍼블리싱
 
-**다음 할 일**: Dodge the Creeps — 프로젝트 설정(480×720) + 공식 에셋 가져오기 → 플레이어 씬.
+**다음 할 일**: 플랫포머 심화(`CharacterBody2D` 중력·점프·이동)로 직행하거나, 공식 문서로 개념을 짧게 정리.
 
 ---
 
