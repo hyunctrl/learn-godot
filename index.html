@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>learn-godot · 학습 대시보드</title>
+<style>
+  :root {
+    --bg: #0e1318;
+    --bg-grad: radial-gradient(1200px 600px at 80% -10%, rgba(71,140,191,.18), transparent 60%);
+    --surface: #161d26;
+    --surface-2: #1b2531;
+    --border: rgba(255,255,255,.08);
+    --border-strong: rgba(255,255,255,.14);
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --faint: #5b6672;
+    --accent: #5ab0f2;
+    --accent-deep: #478cbf;
+    --green: #3fb950;
+    --amber: #d8a429;
+    --gray: #6e7681;
+    --leaf: #84b86a;
+    --shadow: 0 8px 30px rgba(0,0,0,.35);
+    --radius: 14px;
+    font-synthesis: none;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Pretendard", Roboto, "Noto Sans KR", sans-serif;
+    color: var(--text);
+    background: var(--bg-grad), var(--bg);
+    background-attachment: fixed;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 20px 72px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Header */
+  header { margin-bottom: 28px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  h1 { font-size: clamp(28px, 5vw, 40px); margin: 6px 0 4px; letter-spacing: -.02em; }
+  .repo-link { font-size: 14px; color: var(--muted); }
+
+  /* North star */
+  .northstar {
+    margin: 22px 0 30px;
+    padding: 20px 22px;
+    background: linear-gradient(135deg, rgba(71,140,191,.16), rgba(71,140,191,.04));
+    border: 1px solid rgba(90,176,242,.3);
+    border-radius: var(--radius);
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .northstar .star { font-size: 26px; line-height: 1.2; }
+  .northstar .label { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .northstar p { margin: 4px 0 0; font-size: 17px; font-weight: 600; }
+  .northstar small { color: var(--muted); font-weight: 400; }
+
+  /* Overview */
+  .overview {
+    display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center;
+    padding: 22px 24px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 30px;
+  }
+  .ring { position: relative; width: 104px; height: 104px; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .pct { position: absolute; inset: 0; display: grid; place-items: center; font-size: 24px; font-weight: 800; }
+  .ov-right .ov-title { font-weight: 700; margin-bottom: 4px; }
+  .ov-right .ov-sub { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .dot.done { background: var(--green); }
+  .dot.prog { background: var(--amber); }
+  .dot.todo { background: var(--gray); }
+  .dot.branch { background: var(--leaf); }
+
+  /* Section titles */
+  .sec-title { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); font-weight: 700; margin: 38px 0 16px; }
+
+  /* Phase grid */
+  .phases { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 18px 16px; transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--border-strong); }
+  .card .head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .chip {
+    width: 34px; height: 34px; flex: none; border-radius: 9px; display: grid; place-items: center;
+    font-weight: 800; font-size: 15px; background: var(--surface-2); border: 1px solid var(--border);
+    color: var(--accent);
+  }
+  .chip.star-chip { background: linear-gradient(135deg, var(--accent-deep), var(--accent)); color: #06121c; border: none; }
+  .card .title { font-weight: 700; font-size: 15.5px; flex: 1; }
+  .badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .badge.done { background: rgba(63,185,80,.16); color: #56d364; }
+  .badge.prog { background: rgba(216,164,41,.16); color: #e3b341; }
+  .badge.todo { background: rgba(110,118,129,.18); color: #9aa5b1; }
+
+  .mini-bar { height: 5px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-bottom: 14px; }
+  .mini-bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-deep), var(--accent)); border-radius: 4px; transition: width .35s ease; }
+
+  ul.items { list-style: none; margin: 0; padding: 0; }
+  ul.items li { margin: 0; }
+  label.item {
+    display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; cursor: pointer;
+    font-size: 14.5px; color: var(--text);
+  }
+  label.item input { position: absolute; opacity: 0; pointer-events: none; }
+  .box {
+    width: 18px; height: 18px; flex: none; margin-top: 2px; border-radius: 5px;
+    border: 1.5px solid var(--border-strong); display: grid; place-items: center;
+    transition: background .15s, border-color .15s; color: #06121c; font-size: 12px; font-weight: 900;
+  }
+  label.item input:checked + .box { background: var(--green); border-color: var(--green); }
+  label.item input:checked + .box::after { content: "✓"; }
+  label.item input:checked ~ .txt { color: var(--faint); text-decoration: line-through; text-decoration-color: rgba(255,255,255,.25); }
+  .txt .tag { font-size: 11px; color: var(--accent); font-weight: 700; margin-left: 4px; }
+  .txt .opt { font-size: 11px; color: var(--faint); margin-left: 4px; }
+
+  /* Branch tracks */
+  .branches { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .branch {
+    background: linear-gradient(180deg, rgba(132,184,106,.07), transparent), var(--surface);
+    border: 1px solid rgba(132,184,106,.22); border-radius: 12px; padding: 16px;
+  }
+  .branch h3 { margin: 0 0 4px; font-size: 15px; display: flex; align-items: center; gap: 7px; }
+  .branch .when { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+  .branch .first { font-size: 13px; color: var(--text); }
+  .branch .first b { color: var(--leaf); font-weight: 700; }
+
+  /* Quick links */
+  .links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .links a {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+  }
+  .links a:hover { border-color: var(--accent); text-decoration: none; }
+  .links a .ic { color: var(--accent); }
+
+  footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--faint); font-size: 12.5px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+  @media (max-width: 560px) {
+    .overview { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .legend { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Godot 4 · 2D 횡스크롤 플랫포머</div>
+    <h1>learn-godot 학습 대시보드</h1>
+    <div class="repo-link">github.com/hyunctrl/learn-godot</div>
+  </header>
+
+  <div class="northstar">
+    <div class="star">🎯</div>
+    <div>
+      <div class="label">북극성</div>
+      <p>대학 졸업 스타트업 수준으로 게임을 개발해, 직접 퍼블리싱하는 경험을 갖는다.<br>
+      <small>완벽한 이해보다 <b>완성과 출시</b>가 우선. 모든 단계는 “출시 가능한 게임 한 편”으로 수렴.</small></p>
+    </div>
+  </div>
+
+  <div class="overview">
+    <div class="ring">
+      <svg width="104" height="104" viewBox="0 0 104 104">
+        <circle cx="52" cy="52" r="46" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
+        <circle id="ringProg" cx="52" cy="52" r="46" fill="none" stroke="url(#g)" stroke-width="9" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"/>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#478cbf"/><stop offset="1" stop-color="#5ab0f2"/>
+        </linearGradient></defs>
+      </svg>
+      <div class="pct"><span id="pctNum">0</span>%</div>
+    </div>
+    <div class="ov-right">
+      <div class="ov-title">전체 진행률 <span id="countTxt" style="color:var(--muted);font-weight:500;font-size:14px;"></span></div>
+      <div class="ov-sub">항목을 체크하면 진행률이 갱신되고 이 브라우저에 저장됩니다.</div>
+      <div class="legend">
+        <span><i class="dot done"></i> 배움</span>
+        <span><i class="dot prog"></i> 진행 중</span>
+        <span><i class="dot todo"></i> 배울 예정</span>
+        <span><i class="dot branch"></i> 가지치기</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">메인 줄기 — Godot 개발 → 출시</div>
+  <div class="phases" id="phases"></div>
+
+  <div class="sec-title">가지치기 트랙 🌿 — 필요할 때 보강</div>
+  <div class="branches" id="branches"></div>
+
+  <div class="sec-title">바로가기</div>
+  <div class="links">
+    <a href="https://github.com/hyunctrl/learn-godot/blob/main/docs/roadmap.md"><span class="ic">▤</span> 로드맵 문서</a>
+    <a href="https://github.com/hyunctrl/learn-godot/blob/main/docs/learning-plan.md"><span class="ic">▤</span> 단계별 상세 플랜</a>
+    <a href="https://github.com/hyunctrl/learn-godot/blob/main/docs/resources.md"><span class="ic">▤</span> 자료 라이브러리</a>
+    <a href="https://docs.godotengine.org/ko/4.x/"><span class="ic">↗</span> Godot 공식 문서</a>
+  </div>
+
+  <footer>
+    <span>learn-godot · 학습 진행 대시보드</span>
+    <span><button id="resetBtn" style="background:none;border:none;color:var(--faint);cursor:pointer;font-size:12.5px;text-decoration:underline;">진행 초기화</button></span>
+  </footer>
+</div>
+
+<script>
+const DATA = {
+  phases: [
+    { n: "0", title: "환경 준비", items: [
+      { id:"p0a", t:"GitHub 레포 + 학습 로드맵 세팅", done:true },
+      { id:"p0b", t:"Godot 4.x 설치 (macOS), 에디터 인터페이스 적응" },
+    ]},
+    { n: "1", title: "입문서 『고도 엔진 4』", items: [
+      { id:"p1a", t:"1장 소개 / 2장 Coin Dash / 3장 Space Rocks" },
+      { id:"p1b", t:"4장 Jungle Jump (2D 플랫포머)", tag:"목표 직결" },
+      { id:"p1c", t:"5장~ 3D·기타", opt:"선택" },
+    ]},
+    { n: "2", title: "공식 문서 Getting Started", items: [
+      { id:"p2a", t:"소개 + Step by step (노드·씬·스크립트·시그널)" },
+      { id:"p2b", t:"첫 2D 게임 — Dodge the Creeps" },
+      { id:"p2c", t:"첫 3D 게임 — Squash the Creeps", opt:"선택" },
+    ]},
+    { n: "3", title: "플랫포머 심화", items: [
+      { id:"p3a", t:"이동·물리 (CharacterBody2D)" },
+      { id:"p3b", t:"타일맵 / 충돌 레이어" },
+      { id:"p3c", t:"카메라 · 패럴랙스 배경" },
+      { id:"p3d", t:"애니메이션 상태머신" },
+      { id:"p3e", t:"적 AI · 체력 · 아이템" },
+    ]},
+    { n: "4", title: "자작 2D 플랫포머", items: [
+      { id:"p4a", t:"기획 — 컨셉·범위 축소" },
+      { id:"p4b", t:"프로토타입 — 이동·점프·충돌" },
+      { id:"p4c", t:"콘텐츠 — 타일셋·적·아이템·골인" },
+      { id:"p4d", t:"폴리시 — 애니·사운드·UI" },
+      { id:"p4e", t:"마무리 — 타이틀·게임오버·씬 전환" },
+    ]},
+    { n: "5", title: "퍼블리싱", star:true, items: [
+      { id:"p5a", t:"클린 빌드 (다른 PC에서 실행 확인)" },
+      { id:"p5b", t:"itch.io 페이지 + 데모/무료 출시" },
+      { id:"p5c", t:"플레이테스트 피드백 반영" },
+      { id:"p5d", t:"Steam 정식 출시 ($100, 위시리스트)", opt:"선택" },
+      { id:"p5e", t:"출시 후 운영 — 버그 대응·devlog" },
+    ]},
+  ],
+  branches: [
+    { icon:"📝", name:"게임 기획", when:"Phase 4 시작 전 (무엇을 만들지)", first:"GDD 입문 + Vertical Slice" },
+    { icon:"🎮", name:"게임 디자인/이론", when:"Phase 3 (점프감·재미가 안 날 때)", first:"GMTK <i>Game Feel & Juice</i>" },
+    { icon:"🗺️", name:"레벨 디자인", when:"Phase 4 (스테이지 만들 때)", first:"GMTK <i>Mario 4 Step</i>" },
+    { icon:"🐞", name:"게임 QA / 플레이테스트", when:"Phase 4 폴리시 ~ Phase 5 출시 전", first:"플레이테스트 6대 질문 + 버그 리포트" },
+  ],
+};
+
+const KEY = "learn-godot-progress-v1";
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) { state = {}; }
+
+function isDone(item) {
+  return (item.id in state) ? state[item.id] : !!item.done;
+}
+
+function phaseStatus(phase) {
+  const total = phase.items.length;
+  const done = phase.items.filter(isDone).length;
+  if (done === 0) return { cls:"todo", label:"배울 예정", done, total };
+  if (done === total) return { cls:"done", label:"완료", done, total };
+  return { cls:"prog", label:"진행 중", done, total };
+}
+
+function render() {
+  const pc = document.getElementById("phases");
+  pc.innerHTML = "";
+  DATA.phases.forEach(ph => {
+    const st = phaseStatus(ph);
+    const pctP = Math.round(st.done / st.total * 100);
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="head">
+        <div class="chip ${ph.star ? "star-chip" : ""}">${ph.star ? "★" : ph.n}</div>
+        <div class="title">${ph.title}</div>
+        <span class="badge ${st.cls}">${st.label}</span>
+      </div>
+      <div class="mini-bar"><i style="width:${pctP}%"></i></div>
+      <ul class="items">
+        ${ph.items.map(it => `
+          <li><label class="item">
+            <input type="checkbox" data-id="${it.id}" ${isDone(it) ? "checked" : ""}/>
+            <span class="box"></span>
+            <span class="txt">${it.t}${it.tag ? `<span class="tag">${it.tag}</span>` : ""}${it.opt ? `<span class="opt">(${it.opt})</span>` : ""}</span>
+          </label></li>`).join("")}
+      </ul>`;
+    pc.appendChild(card);
+  });
+
+  const bc = document.getElementById("branches");
+  bc.innerHTML = DATA.branches.map(b => `
+    <div class="branch">
+      <h3>${b.icon} ${b.name}</h3>
+      <div class="when">⏱ ${b.when}</div>
+      <div class="first">첫 자료: <b>${b.first}</b></div>
+    </div>`).join("");
+
+  updateOverview();
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      state[cb.dataset.id] = cb.checked;
+      localStorage.setItem(KEY, JSON.stringify(state));
+      render();
+    });
+  });
+}
+
+function updateOverview() {
+  const all = DATA.phases.flatMap(p => p.items);
+  const done = all.filter(isDone).length;
+  const pct = Math.round(done / all.length * 100);
+  document.getElementById("pctNum").textContent = pct;
+  document.getElementById("countTxt").textContent = `(${done} / ${all.length})`;
+  const C = 289;
+  document.getElementById("ringProg").style.strokeDashoffset = C - (C * pct / 100);
+}
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (confirm("체크한 진행 상황을 모두 초기화할까요?")) {
+    localStorage.removeItem(KEY); state = {}; render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
